@@ -16,9 +16,11 @@ use InvalidArgumentException;
 class Generator
 {
     /**
+     * Main root object of composer
+     *
      * @var Composer
      */
-    private $composer;
+    private Composer $composer;
 
     /**
      * Check if file is JSON
