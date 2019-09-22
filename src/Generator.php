@@ -9,7 +9,6 @@ use ComposerJson\Schemas\Support;
 use ErrorException;
 use JsonException;
 use InvalidArgumentException;
-use phpDocumentor\Reflection\DocBlock\Tags\Method;
 
 class Generator
 {
