@@ -20,7 +20,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $name;
+    public ?string $name;
 
     /**
      * A short description of the package. Usually this is one line long.
@@ -29,7 +29,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $description;
+    public ?string $description;
 
     /**
      * The version of the package. In most cases this is not required and should be omitted (see below).
@@ -57,7 +57,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $version;
+    public ?string $version;
 
     /**
      * The type of the package. It defaults to library.
@@ -79,7 +79,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $type;
+    public ?string $type;
 
     /**
      * An array of keywords that the package is related to. These can be used for searching and filtering.
@@ -105,7 +105,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $homepage;
+    public ?string $homepage;
 
     /**
      * A relative path to the readme document.
@@ -114,7 +114,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $readme;
+    public ?string $readme;
 
     /**
      * Release date of the version.
@@ -123,9 +123,9 @@ class Composer extends Model
      *
      * Optional.
      *
-     * @var string
+     * @var ?string
      */
-    public string $time;
+    public ?string $time;
 
     /**
      * The license of the package. This can be either a string or an array of strings.
@@ -288,7 +288,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $targetDir;
+    public ?string $targetDir;
 
     /**
      * This defines the default behavior for filtering packages by stability. This defaults to stable, so if you rely on a dev package, you should specify it in your
@@ -302,7 +302,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $minimumStability;
+    public ?string $minimumStability;
 
     /**
      * When this is enabled, Composer will prefer more stable packages over unstable ones when finding compatible stable packages is possible. If you require a dev
@@ -371,7 +371,7 @@ class Composer extends Model
      *
      * @var string
      */
-    public string $bin;
+    public ?string $bin;
 
     /**
      * A set of options for creating package archives.

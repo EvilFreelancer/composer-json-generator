@@ -9,9 +9,12 @@ use ComposerJson\Schemas\Support;
 use ErrorException;
 use JsonException;
 use InvalidArgumentException;
+use phpDocumentor\Reflection\DocBlock\Tags\Method;
 
 class Generator
 {
+    use Helper;
+
     /**
      * Main root object of composer
      *
@@ -24,8 +27,8 @@ class Generator
      *
      * @param string $source
      *
-     * @throws JsonException
      * @return JsonException|array
+     * @throws JsonException
      */
     private function isJson(string &$source)
     {
@@ -70,29 +73,38 @@ class Generator
     /**
      * Return JSON with composer
      *
+     * @return string
      * @throws JsonException
-     * @return string|JsonException
      */
-    public function toJson()
+    public function toJson(): string
     {
-        return json_encode($this->toArray(),
-            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+        return json_encode($this->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * Compolomus believe what is a simplification of code...
+     *
+     * @param string $rule
+     * @param mixed  $value
+     */
     private function parseFields(string $rule, $value): void
     {
-        $rule = $rule !== 'autoload-dev' ? $rule : 'autoload';
-        $method = 'parse' . $this->normalizeMethodName($rule);
+        $rule      = $rule !== 'autoload-dev' ? $rule : 'autoload';
+        $classRule = $this->denormalize($rule);
 
-        // is_array((new Composer)->$rule))
-        is_array(Composer::class::$rule)
-            ? $this->composer->$rule = $this->$method($value)
-            : $this->composer->$rule = $value;
-    }
+        if (!empty($classRule)) {
+            if (is_array($this->composer->$classRule)) {
+                $method = 'parse' . $this->normalizeMethodName($rule);
+                if (method_exists($this, $method)) {
+                    $this->composer->$classRule = $this->$method($value);
+                } else {
+                    $this->composer->$classRule = $value;
+                }
+            } else {
+                $this->composer->$classRule = $value;
+            }
+        }
 
-    private function normalizeMethodName(string $name): string
-    {
-        return str_replace(' ', '', ucwords(implode(' ', explode('-', $name))));
     }
 
     /**
@@ -125,6 +137,13 @@ class Generator
         return $this->composer;
     }
 
+    /**
+     * Parse autoload parts of composer.json
+     *
+     * @param array $autoload
+     *
+     * @return array
+     */
     private function parseAutoload(array $autoload): array
     {
         $objects = [];
@@ -137,17 +156,20 @@ class Generator
         ];
 
         foreach ($autoload as $type => $options) {
-            if (array_key_exists($type, $methodsArray)) {
-                $class = 'ComposerJson\\Schemas\\' . $this->normalizeMethodName($type);
+            if (in_array($type, $methodsArray, true)) {
+                $class  = 'ComposerJson\\Schemas\\' . $this->normalizeMethodName($type);
                 $object = new $class;
+
                 // Autoload object options
                 $object->options = $options;
+
                 // Save object
                 $objects[$type] = $object;
             } else {
                 throw new InvalidArgumentException('Incorrect type of autoloader provided');
             }
         }
+
         return $objects;
     }
 
