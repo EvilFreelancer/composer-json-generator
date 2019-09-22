@@ -6,6 +6,21 @@ use InvalidArgumentException;
 
 abstract class Model implements ModelInterface
 {
+    private function parseItem(string $key, array $item): array
+    {
+        $result = [];
+
+        foreach ($item as $subKey => $subItem) {
+            if ($subItem instanceof ModelInterface) {
+                $result[$this->normalize($key)][$subKey] = $subItem->toArray();
+            } else {
+                $result[$this->normalize($key)][$subKey] = $subItem;
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * Convert model to array
      *
@@ -18,19 +33,11 @@ abstract class Model implements ModelInterface
         $items = get_object_vars($this);
         foreach ($items as $key => $item) {
             if (is_array($item)) {
-                foreach ($item as $subKey => $subItem) {
-                    if ($subItem instanceof ModelInterface) {
-                        $result[$this->normalize($key)][$subKey] = $subItem->toArray();
-                    } else {
-                        $result[$this->normalize($key)][$subKey] = $subItem;
-                    }
-                }
+                array_merge($result, $this->parseItem($key, $item));
             } elseif ($item instanceof ModelInterface) {
                 $result[$this->normalize($key)] = $item->toArray();
             } else {
-                if (!empty($item)) {
-                    $result[$this->normalize($key)] = $item;
-                }
+                empty($item) ?: $result[$this->normalize($key)] = $item;
             }
         }
 
@@ -51,7 +58,7 @@ abstract class Model implements ModelInterface
 
     /**
      * @param string $name
-     * @param mixed  $value
+     * @param mixed $value
      *
      * @throws \InvalidArgumentException
      */
@@ -60,7 +67,8 @@ abstract class Model implements ModelInterface
         if (property_exists($this, $name)) {
             $this->$name = $value;
         } else {
-            throw new InvalidArgumentException('Property does not in list [' . implode(',', get_class_vars(self::class)) . ']');
+            throw new InvalidArgumentException('Property does not in list [' . implode(',',
+                    get_class_vars(self::class)) . ']');
         }
     }
 

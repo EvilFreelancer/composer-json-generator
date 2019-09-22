@@ -3,14 +3,11 @@
 namespace ComposerJson;
 
 use ComposerJson\Schemas\Author;
-use ComposerJson\Schemas\Classmap;
 use ComposerJson\Schemas\Composer;
-use ComposerJson\Schemas\Files;
-use ComposerJson\Schemas\Psr0;
-use ComposerJson\Schemas\Psr4;
 use ComposerJson\Schemas\Repository;
 use ComposerJson\Schemas\Support;
 use ErrorException;
+use JsonException;
 use InvalidArgumentException;
 
 class Generator
@@ -27,12 +24,12 @@ class Generator
      *
      * @param string $source
      *
-     * @return false|array
+     * @throws JsonException
+     * @return JsonException|array
      */
     private function isJson(string &$source)
     {
-        $json = json_decode($source, true);
-        return $json !== false ? $json : false;
+        return json_decode($source, true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -65,7 +62,7 @@ class Generator
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->composer->toArray();
     }
@@ -73,11 +70,29 @@ class Generator
     /**
      * Return JSON with composer
      *
-     * @return string
+     * @throws JsonException
+     * @return string|JsonException
      */
     public function toJson()
     {
-        return json_encode($this->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        return json_encode($this->toArray(),
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+    }
+
+    private function parseFields(string $rule, $value): void
+    {
+        $rule = $rule !== 'autoload-dev' ? $rule : 'autoload';
+        $method = 'parse' . $this->normalizeMethodName(strtoupper($rule));
+
+        is_array(Composer::class::$rule) === 'array'
+            ? $this->composer->$rule = $this->$method($value)
+            : $this->composer->$rule = $value;
+    }
+
+    private function normalizeMethodName(string $name): string
+    {
+        $parts = explode('-', $name);
+        return str_replace(' ', '', ucwords(implode(' ', $parts)));
     }
 
     /**
@@ -86,81 +101,25 @@ class Generator
      * @param string $file
      *
      * @return Composer
-     * @throws \ErrorException
-     * @throws \InvalidArgumentException
+     * @throws ErrorException
+     * @throws JsonException
      */
-    public function read(string $file)
+    public function read(string $file): Composer
     {
         // Read file from string
         if (!$source = file_get_contents($file)) {
             throw new ErrorException('Provided file could not to be read');
         }
 
-        // Convert JSON to array
-        if (!$array = $this->isJson($source)) {
-            throw new ErrorException('Provided string is not a valid JSON');
-        }
+        // Convert JSON to array or throw JsonException
+        $array = $this->isJson($source);
 
         // Initiate composer object
         $this->composer = new Composer();
 
         // Parse values
         foreach ($array as $key => $value) {
-
-            switch ($key) {
-
-                /*
-                 * Specific objects
-                 */
-
-                case 'authors':
-                    $this->composer->authors = $this->parseAuthors($value);
-                    break;
-                case 'support':
-                    $this->composer->support = $this->parseSupport($value);
-                    break;
-                case 'repositories':
-                    $this->composer->repositories = $this->parseRepositories($value);
-                    break;
-                case 'autoload':
-                    $this->composer->autoload = $this->parseAutoload($value);
-                    break;
-                case 'autoload-dev':
-                    $this->composer->autoloadDev = $this->parseAutoload($value);
-                    break;
-
-                /*
-                 * Convert format of keys
-                 */
-
-                case 'require-dev':
-                    $this->composer->requireDev = $value;
-                    break;
-                case 'include-path':
-                    $this->composer->includePath = $value;
-                    break;
-                case 'target-dir':
-                    $this->composer->targetDir = $value;
-                    break;
-                case 'minimum-stability':
-                    $this->composer->minimumStability = $value;
-                    break;
-                case 'prefer-stable':
-                    $this->composer->preferStable = $value;
-                    break;
-                case 'non-feature-branches';
-                    $this->composer->nonFeatureBranches = $value;
-                    break;
-
-                /*
-                 * Default values
-                 */
-
-                default:
-                    $this->composer->$key = $value;
-                    break;
-            }
-
+            $this->parseFields($key, $value);
         }
 
         return $this->composer;
@@ -169,29 +128,23 @@ class Generator
     private function parseAutoload(array $autoload): array
     {
         $objects = [];
+
+        $methodsArray = [
+            'psr-0',
+            'psr-4',
+            'classmap',
+            'files'
+        ];
+
         foreach ($autoload as $type => $options) {
-
-            switch ($type) {
-                case 'psr-0':
-                    $object = new Psr0();
-                    break;
-                case 'psr-4':
-                    $object = new Psr4();
-                    break;
-                case 'classmap':
-                    $object = new Classmap();
-                    break;
-                case 'files':
-                    $object = new Files();
-                    break;
-                default:
-                    throw new InvalidArgumentException('Incorrect type of autoloader provided');
-                    break;
+            if (array_key_exists($type, $methodsArray)) {
+                $class = 'ComposerJson\\Schemas\\' . $this->normalizeMethodName($type);
+                $object = new $class;
+            } else {
+                throw new InvalidArgumentException('Incorrect type of autoloader provided');
             }
-
             // Autoload object options
             $object->options = $options;
-
             // Save object
             $objects[$type] = $object;
         }
