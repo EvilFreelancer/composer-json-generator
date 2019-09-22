@@ -11,7 +11,7 @@ addons:
     - expect
 
 php:
-- '7.4'
+- '7.4snapshot'
 
 before_script:
 - sudo apt-get update
