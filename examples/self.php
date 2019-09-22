@@ -5,9 +5,6 @@ require __DIR__ . '/../vendor/autoload.php';
 $generator = new \ComposerJson\Generator();
 $generator->read(__DIR__ . '/../composer.json');
 
-//print_r($generator);
-
-
 $array = $generator->toArray();
 $json  = $generator->toJson();
 
