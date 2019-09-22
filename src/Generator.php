@@ -82,17 +82,17 @@ class Generator
     private function parseFields(string $rule, $value): void
     {
         $rule = $rule !== 'autoload-dev' ? $rule : 'autoload';
-        $method = 'parse' . $this->normalizeMethodName(strtoupper($rule));
+        $method = 'parse' . $this->normalizeMethodName($rule);
 
-        is_array(Composer::class::$rule) === 'array'
+        // is_array((new Composer)->$rule))
+        is_array(Composer::class::$rule)
             ? $this->composer->$rule = $this->$method($value)
             : $this->composer->$rule = $value;
     }
 
     private function normalizeMethodName(string $name): string
     {
-        $parts = explode('-', $name);
-        return str_replace(' ', '', ucwords(implode(' ', $parts)));
+        return str_replace(' ', '', ucwords(implode(' ', explode('-', $name))));
     }
 
     /**
@@ -140,15 +140,14 @@ class Generator
             if (array_key_exists($type, $methodsArray)) {
                 $class = 'ComposerJson\\Schemas\\' . $this->normalizeMethodName($type);
                 $object = new $class;
+                // Autoload object options
+                $object->options = $options;
+                // Save object
+                $objects[$type] = $object;
             } else {
                 throw new InvalidArgumentException('Incorrect type of autoloader provided');
             }
-            // Autoload object options
-            $object->options = $options;
-            // Save object
-            $objects[$type] = $object;
         }
-
         return $objects;
     }
 
