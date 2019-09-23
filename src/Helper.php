@@ -33,6 +33,21 @@ trait Helper
     }
 
     /**
+     * Convert string like "require-dev" to "requireDev"
+     *
+     * @param string $name
+     *
+     * @return string
+     */
+    private function denormalizeClassName(string $name): string
+    {
+        $class = explode('\\', $name);
+        $class = $class[array_key_last($class)];
+
+        return $this->normalize($class);
+    }
+
+    /**
      * Convert string to normal name
      *
      * @param string $name

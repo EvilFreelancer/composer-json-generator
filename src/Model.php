@@ -2,6 +2,10 @@
 
 namespace ComposerJson;
 
+use ComposerJson\Schemas\Classmap;
+use ComposerJson\Schemas\Files;
+use ComposerJson\Schemas\Psr0;
+use ComposerJson\Schemas\Psr4;
 use InvalidArgumentException;
 
 abstract class Model implements ModelInterface
@@ -22,6 +26,16 @@ abstract class Model implements ModelInterface
             if (is_array($item)) {
                 foreach ($item as $subKey => $subItem) {
                     if ($subItem instanceof ModelInterface) {
+
+                        switch (get_class($subItem)) {
+                            case Psr0::class:
+                            case Psr4::class:
+                            case Classmap::class:
+                            case Files::class:
+                                $subKey = $this->denormalizeClassName(get_class($subItem));
+                                break;
+                        }
+
                         $result[$this->normalize($key)][$subKey] = $subItem->toArray();
                     } else {
                         $result[$this->normalize($key)][$subKey] = $subItem;
