@@ -136,16 +136,16 @@ Results is
     "require-dev": {
         "phpunit/phpunit": "^8.0"
     },
-    "autoload": [
-        {
+    "autoload": {
+        "psr4": {
             "ComposerJson\\": "./src/"
         }
-    ],
-    "autoload-dev": [
-        {
+    },
+    "autoload-dev": {
+        "psr4": {
             "ComposerJson\\Tests\\": "./tests/"
         }
-    ]
+    }
 }
 ```
 
