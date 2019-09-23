@@ -28,7 +28,7 @@ use \ComposerJson\Schemas\Composer;
 use \ComposerJson\Schemas\Author;
 use \ComposerJson\Schemas\Psr4;
 
-// Initial the generator
+// Initiate generator
 $generator = new Generator();
 
 // Initiate composer object
