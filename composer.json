@@ -1,26 +1,18 @@
 {
   "name": "evilfreelancer/composer-json-generator",
-  "type": "library",
   "description": "Small library for generating composer.json file with validation by composer's schema",
+  "type": "library",
   "keywords": [
     "composer",
     "json",
     "generator"
   ],
   "license": "MIT",
-  "autoload": {
-    "psr-4": {
-      "ComposerJson\\": "./src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": { "ComposerJson\\Tests\\": "./tests/" }
-  },
   "authors": [
     {
       "name": "Paul Rock",
       "email": "paul@drteam.rocks",
-      "homepage": "http://drteam.rocks/",
+      "homepage": "https://twitter.com/EvilFreelancer",
       "role": "Developer"
     }
   ],
@@ -30,5 +22,15 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^8.0"
+  },
+  "autoload": {
+    "psr4": {
+      "ComposerJson\\": "./src/"
+    }
+  },
+  "autoload-dev": {
+    "psr4": {
+      "ComposerJson\\Tests\\": "./tests/"
+    }
   }
 }
