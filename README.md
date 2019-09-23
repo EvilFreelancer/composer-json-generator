@@ -137,12 +137,12 @@ Results is
         "phpunit/phpunit": "^8.0"
     },
     "autoload": {
-        "psr4": {
+        "psr-4": {
             "ComposerJson\\": "./src/"
         }
     },
     "autoload-dev": {
-        "psr4": {
+        "psr-4": {
             "ComposerJson\\Tests\\": "./tests/"
         }
     }
