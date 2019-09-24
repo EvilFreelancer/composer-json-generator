@@ -186,6 +186,11 @@ class Generator
             $object = new Repository();
 
             foreach ($repository as $key => $value) {
+
+                if ($key === 'packagist.org') {
+                    $key = 'packagistOrg';
+                }
+
                 $object->$key = $value;
             }
 
