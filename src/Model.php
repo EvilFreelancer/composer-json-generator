@@ -29,10 +29,16 @@ abstract class Model implements ModelInterface
 
                         switch (get_class($subItem)) {
                             case Psr0::class:
+                                $subKey = 'psr-0';
+                                break;
                             case Psr4::class:
+                                $subKey = 'psr-4';
+                                break;
                             case Classmap::class:
+                                $subKey = 'classmap';
+                                break;
                             case Files::class:
-                                $subKey = $this->denormalizeClassName(get_class($subItem));
+                                $subKey = 'files';
                                 break;
                         }
 
