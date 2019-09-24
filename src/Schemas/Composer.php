@@ -181,7 +181,7 @@ class Composer extends Model
      *
      * @var \ComposerJson\Schemas\Support
      */
-    public Support $support;
+    public $support;
 
     /**
      * Lists packages required by this package. The package will not be installed unless those requirements can be met.
@@ -369,9 +369,9 @@ class Composer extends Model
      *
      * Optional.
      *
-     * @var string
+     * @var string|array
      */
-    public ?string $bin;
+    public $bin;
 
     /**
      * A set of options for creating package archives.

@@ -3,7 +3,7 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 $generator = new \ComposerJson\Generator();
-$generator->read(__DIR__ . '/../composer.json');
+$generator->read(__DIR__ . '/large.composer.json');
 
 $array = $generator->toArray();
 $json  = $generator->toJson();
