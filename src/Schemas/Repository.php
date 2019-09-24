@@ -2,10 +2,28 @@
 
 namespace ComposerJson\Schemas;
 
+use ComposerJson\Helper;
 use ComposerJson\Model;
 
 class Repository extends Model
 {
+    use Helper;
+
+    /**
+     * @var string
+     */
+    public string $type;
+
+    /**
+     * @var string
+     */
+    public string $url;
+
+    /**
+     * @var bool
+     */
+    public bool $packagistOrg;
+
     /**
      * A Composer repository is simply a packages.json file served via the network (HTTP, FTP, SSH), that contains a list of composer.json objects with additional dist
      * and/or source information. The packages.json file is loaded using a PHP stream. You can set extra options on that stream using the options parameter.
@@ -42,4 +60,23 @@ class Repository extends Model
      * @var array
      */
     public array $options = [];
+
+    /**
+     * Convert model to array
+     *
+     * @return array
+     */
+    public function toArray(): array
+    {
+        $result = [];
+        $items  = get_object_vars($this);
+        foreach ($items as $key => $value) {
+            if ($key === 'packagistOrg') {
+                $result['packagist.org'] = $value;
+            } elseif (!empty($value)) {
+                $result[$this->normalize($key)] = $value;
+            }
+        }
+        return $result;
+    }
 }
